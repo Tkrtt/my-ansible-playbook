@@ -1,0 +1,10 @@
+vars:
+  server_groups: 
+    - appservers
+    - dbservers
+tasks:
+   - name: foo
+     ansible.builtin.debug:
+        msg: "Debug {{ inventory_hostname }}"
+     when: inventory_hostname in groups[item]
+     loop: "{{ server_groups }}"

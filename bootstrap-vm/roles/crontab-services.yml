@@ -1,0 +1,38 @@
+---
+- name: Transfer files and configure crontab
+  hosts: backend-app
+  become: true
+  tasks:
+    - name: Transfer files to /u01/app directory
+      copy:
+        src: /u01/ansible/files/{{ item }}
+        dest: /u01/app/{{ item }}
+      with_items:
+        - delete_log.sh
+        - all_app.sh
+        - set_exec.sh
+        - reboot_config.sh
+
+    - name: Configure crontab
+      cron:
+        name: "Run delete_log.sh daily"
+        minute: 0
+        hour: 0
+        job: "/u01/app/delete_log.sh"
+      cron_file: delete_log
+
+    - name: Configure crontab
+      cron:
+        name: "Run reboot_config.sh weekly"
+        minute: 0
+        hour: 0
+        weekday: 0
+        job: "/u01/app/reboot_config.sh"
+      cron_file: reboot_config
+
+    - name: Configure crontab
+      cron:
+        name: "Run set_exec.sh at reboot"
+        special_time: reboot
+        job: "/u01/app/set_exec.sh"
+      cron_file: set_exec
